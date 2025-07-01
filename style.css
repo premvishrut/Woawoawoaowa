@@ -1,0 +1,178 @@
+/* 🌸 Reset + Font */
+
+{
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+font-family: 'Baloo 2', cursive;
+}
+
+
+body {
+background-image: url('https://i.ibb.co/m5wMnjyN/bg.jpg');
+background-repeat: no-repeat;
+background-attachment: fixed;
+background-position: center;
+background-size: cover;
+color: #fff;
+padding-top: 60px;
+scroll-behavior: smooth;
+min-height: 100vh;
+}
+
+/* 🔱 Topbar */
+.topbar {
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 60px;
+background: rgba(0, 0, 0, 0.8);
+color: white;
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 0 20px;
+z-index: 1000;
+}
+
+.topbar .left-group {
+display: flex;
+align-items: center;
+}
+
+.logo {
+height: 40px;
+margin-left: 10px;
+}
+
+.nav-icons i {
+margin-left: 15px;
+font-size: 18px;
+cursor: pointer;
+}
+
+.hamburger {
+font-size: 22px;
+cursor: pointer;
+}
+
+/* 📚 Sidebar */
+.sidebar {
+position: fixed;
+top: 60px;
+left: 0;
+width: 200px;
+height: calc(100% - 60px);
+background-color: rgba(0, 0, 0, 0.7);
+overflow-y: auto;
+padding: 10px;
+z-index: 999;
+}
+
+.sidebar ul {
+list-style: none;
+}
+
+.sidebar ul li {
+margin: 10px 0;
+}
+
+.sidebar ul li a {
+color: #fff;
+text-decoration: none;
+display: block;
+padding: 8px;
+border-radius: 6px;
+transition: 0.3s;
+}
+
+.sidebar ul li a:hover {
+background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* 📦 Section Layout */
+.section {
+margin-left: 220px;
+padding: 20px;
+}
+
+/* 🧧 Card /
+.card {
+background-color: rgba(0, 0, 0, 0.5); / Semi-transparent black */
+border-radius: 15px;
+padding: 20px;
+margin-bottom: 20px;
+color: #ffffff;
+box-shadow: 0 0 12px rgba(255, 255, 255, 0.1);
+transition: 0.3s;
+}
+
+.card i {
+margin-right: 10px;
+font-size: 20px;
+}
+
+/* 🎛️ Button Group */
+.btn-group {
+margin-top: 15px;
+}
+
+.btn-group button {
+background-color: rgba(255, 255, 255, 0.15);
+border: 1px solid #ffffff55;
+color: #fff;
+padding: 8px 15px;
+margin: 5px 5px 0 0;
+border-radius: 10px;
+cursor: pointer;
+transition: background-color 0.3s, border-color 0.3s;
+}
+
+.btn-group button:hover {
+background-color: rgba(255, 255, 255, 0.3);
+border-color: #ffffffaa;
+}
+
+/* 📁 Uploaded File Display (for script.js support) */
+.uploaded-files {
+margin-top: 10px;
+padding: 10px;
+background: rgba(255, 255, 255, 0.1);
+border-radius: 8px;
+font-size: 14px;
+color: #fff;
+}
+
+/* 📱 Responsive Design */
+@media (max-width: 768px) {
+.sidebar {
+display: none;
+}
+
+.section {
+margin-left: 0;
+}
+
+.topbar {
+flex-direction: column;
+align-items: flex-start;
+height: auto;
+padding: 10px;
+}
+
+.logo {
+height: 30px;
+}
+
+.btn-group {
+display: flex;
+flex-wrap: wrap;
+}
+
+.btn-group button {
+flex: 1 1 auto;
+margin: 5px 5px 0 0;
+}
+}
+
