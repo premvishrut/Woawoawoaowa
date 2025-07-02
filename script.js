@@ -1,105 +1,105 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const sections = document.querySelectorAll(".section");
+// 🔁 Sidebar Toggle
+document.getElementById("menu-toggle").addEventListener("click", () => {
+  const sidebar = document.getElementById("sidebar");
+  sidebar.style.display = sidebar.style.display === "block" ? "none" : "block";
+});
 
-  sections.forEach((section) => {
-    const card = section.querySelector(".card");
-    const group = card.querySelector(".btn-group");
+// 📦 Helper: Determine File Type
+function getFilePreview(file) {
+  const type = file.type;
+  const url = URL.createObjectURL(file);
 
-    // Create container for uploaded files
-    const display = document.createElement("div");
-    display.className = "uploaded-files";
-    card.appendChild(display);
+  if (type.startsWith("image/")) {
+    return `<img src="${url}" style="max-width:100%; max-height:150px; border-radius:10px;" />`;
+  } else if (type.startsWith("audio/")) {
+    return `<audio controls src="${url}" style="width:100%"></audio>`;
+  } else if (type === "application/pdf") {
+    return `<a href="${url}" target="_blank" style="color:#fff; text-decoration:underline;">View PDF</a>`;
+  } else {
+    return `<p style="color:white;">Uploaded: ${file.name}</p>`;
+  }
+}
 
-    const sectionId = section.id;
+// 📂 File Upload Handler
+function handleUpload(sectionId) {
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "*/*";
 
-    // Load saved data
-    const saved = JSON.parse(localStorage.getItem(sectionId)) || [];
-    saved.forEach(file => addToDisplay(file));
+  input.onchange = () => {
+    const file = input.files[0];
+    if (file) {
+      const preview = getFilePreview(file);
+      const wrapper = document.createElement("div");
+      wrapper.className = "uploaded-files";
+      wrapper.innerHTML = preview;
 
-    // Upload handler
-    const uploadBtn = group.querySelector("button:nth-child(1)");
-    uploadBtn.addEventListener("click", () => {
-      const input = document.createElement("input");
-      input.type = "file";
-      input.accept = "*/*";
-      input.onchange = () => {
-        const file = input.files[0];
-        if (file) {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            const newFile = {
-              name: file.name,
-              url: e.target.result,
-              type: file.type
-            };
-            saved.push(newFile);
-            localStorage.setItem(sectionId, JSON.stringify(saved));
-            addToDisplay(newFile);
-          };
-          reader.readAsDataURL(file);
-        }
-      };
-      input.click();
-    });
+      const section = document.getElementById(sectionId);
+      section.appendChild(wrapper);
 
-    // Edit handler (not implemented deeply yet)
-    const editBtn = group.querySelector("button:nth-child(2)");
-    editBtn.addEventListener("click", () => {
-      alert("Edit feature coming soon.");
-    });
-
-    // Remove handler
-    const removeBtn = group.querySelector("button:nth-child(3)");
-    removeBtn.addEventListener("click", () => {
-      if (confirm("Are you sure you want to clear this section?")) {
-        localStorage.removeItem(sectionId);
-        display.innerHTML = "";
-      }
-    });
-
-    // Rename handler
-    const renameBtn = group.querySelector("button:nth-child(4)");
-    renameBtn.addEventListener("click", () => {
-      const newName = prompt("Enter new name (in Hindi if you wish):");
-      if (newName) {
-        const last = saved[saved.length - 1];
-        if (last) {
-          last.name = newName;
-          localStorage.setItem(sectionId, JSON.stringify(saved));
-          display.innerHTML = "";
-          saved.forEach(addToDisplay);
-        }
-      }
-    });
-
-    function addToDisplay(file) {
-      const container = document.createElement("div");
-      container.style.marginBottom = "10px";
-      container.innerHTML = `<strong>${file.name}</strong><br/>`;
-
-      if (file.type.startsWith("audio")) {
-        const audio = document.createElement("audio");
-        audio.controls = true;
-        audio.src = file.url;
-        container.appendChild(audio);
-      } else if (file.type.startsWith("image")) {
-        const img = document.createElement("img");
-        img.src = file.url;
-        img.style.maxWidth = "200px";
-        img.style.display = "block";
-        container.appendChild(img);
-      } else if (file.type === "application/pdf") {
-        container.innerHTML += `<a href="${file.url}" target="_blank">📄 View PDF</a>`;
-      } else {
-        container.innerHTML += `<a href="${file.url}" target="_blank">📎 Open File</a>`;
-      }
-
-      display.appendChild(container);
+      // Save to localStorage
+      const all = JSON.parse(localStorage.getItem(sectionId) || "[]");
+      all.push({ name: file.name, type: file.type });
+      localStorage.setItem(sectionId, JSON.stringify(all));
     }
-  });
+  };
 
-  // Hamburger toggle
-  document.getElementById("menu-toggle").addEventListener("click", () => {
-    document.getElementById("sidebar").classList.toggle("active");
+  input.click();
+}
+
+// 🗑️ Remove Last File
+function handleRemove(sectionId) {
+  const section = document.getElementById(sectionId);
+  const uploads = section.querySelectorAll(".uploaded-files");
+  if (uploads.length > 0) {
+    uploads[uploads.length - 1].remove();
+
+    // Update localStorage
+    let all = JSON.parse(localStorage.getItem(sectionId) || "[]");
+    all.pop();
+    localStorage.setItem(sectionId, JSON.stringify(all));
+  }
+}
+
+// ✏️ Rename Last File
+function handleRename(sectionId) {
+  const section = document.getElementById(sectionId);
+  const uploads = section.querySelectorAll(".uploaded-files");
+  if (uploads.length > 0) {
+    const last = uploads[uploads.length - 1];
+    const newName = prompt("Enter new name (in Hindi also supported):");
+    if (newName) {
+      last.innerHTML = `<p style="color:white;">Renamed to: ${newName}</p>`;
+    }
+  }
+}
+
+// ✏️ Edit File (Re-upload)
+function handleEdit(sectionId) {
+  handleUpload(sectionId);
+}
+
+// 🔁 Attach to all button groups
+document.querySelectorAll(".section").forEach(section => {
+  const id = section.id;
+  const buttons = section.querySelectorAll(".btn-group button");
+
+  buttons[0].addEventListener("click", () => handleUpload(id)); // Upload
+  buttons[1].addEventListener("click", () => handleEdit(id));   // Edit
+  buttons[2].addEventListener("click", () => handleRemove(id)); // Remove
+  buttons[3].addEventListener("click", () => handleRename(id)); // Rename
+});
+
+// 💾 Load previously saved (optional)
+window.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".section").forEach(section => {
+    const id = section.id;
+    const saved = JSON.parse(localStorage.getItem(id) || "[]");
+    saved.forEach(file => {
+      const wrapper = document.createElement("div");
+      wrapper.className = "uploaded-files";
+      wrapper.innerHTML = `<p style="color:white;">${file.name} (${file.type})</p>`;
+      section.appendChild(wrapper);
+    });
   });
 });
