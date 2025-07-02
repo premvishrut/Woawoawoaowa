@@ -4,12 +4,12 @@ document.getElementById("menu-toggle").addEventListener("click", () => {
   sidebar.style.display = sidebar.style.display === "block" ? "none" : "block";
 });
 
-// 📤 Upload to Cloudinary (Permanent)
+// 📤 Upload to Cloudinary
 function uploadToCloudinary(sectionId, file) {
   const formData = new FormData();
   formData.append("file", file);
-  formData.append("upload_preset", "bhajan upload"); // Use your unsigned preset
-  formData.append("folder", sectionId); // Save under section name
+  formData.append("upload_preset", "bhajan_upload"); // Your unsigned preset
+  formData.append("folder", sectionId); // Save under folder named by section
 
   return fetch("https://api.cloudinary.com/v1_1/denn7emmr/upload", {
     method: "POST",
@@ -24,12 +24,12 @@ function uploadToCloudinary(sectionId, file) {
       }
     })
     .catch((err) => {
-      alert("❌ Upload failed. Please check your internet or Cloudinary settings.");
+      alert("❌ Upload failed. Check internet or Cloudinary settings.");
       console.error(err);
     });
 }
 
-// 📦 Get Preview
+// 📦 Get Preview HTML
 function getPreview(fileInfo) {
   if (fileInfo.type.startsWith("image/")) {
     return `<img src="${fileInfo.url}" style="max-width:100%; max-height:150px; border-radius:10px;" />`;
@@ -42,9 +42,9 @@ function getPreview(fileInfo) {
   }
 }
 
-// 📂 Upload Handler
+// 📂 Handle Upload Button
 function handleUpload(sectionId) {
-  if (sectionId === "search") return; // Skip "खोजें" section
+  if (sectionId === "search") return;
 
   const input = document.createElement("input");
   input.type = "file";
@@ -53,10 +53,10 @@ function handleUpload(sectionId) {
   input.onchange = async () => {
     const file = input.files[0];
     if (file) {
-      const uploading = document.createElement("p");
-      uploading.style.color = "white";
-      uploading.textContent = "Uploading...";
       const section = document.getElementById(sectionId);
+      const uploading = document.createElement("p");
+      uploading.textContent = "Uploading...";
+      uploading.style.color = "white";
       section.appendChild(uploading);
 
       const uploaded = await uploadToCloudinary(sectionId, file);
@@ -78,20 +78,19 @@ function handleUpload(sectionId) {
   input.click();
 }
 
-// 🗑️ Remove Last
+// 🗑️ Remove Last Upload
 function handleRemove(sectionId) {
   const section = document.getElementById(sectionId);
   const uploads = section.querySelectorAll(".uploaded-files");
   if (uploads.length > 0) {
     uploads[uploads.length - 1].remove();
-
     let all = JSON.parse(localStorage.getItem(sectionId) || "[]");
     all.pop();
     localStorage.setItem(sectionId, JSON.stringify(all));
   }
 }
 
-// ✏️ Rename
+// ✏️ Rename Last
 function handleRename(sectionId) {
   const section = document.getElementById(sectionId);
   const uploads = section.querySelectorAll(".uploaded-files");
@@ -104,12 +103,12 @@ function handleRename(sectionId) {
   }
 }
 
-// ♻️ Edit
+// 🔁 Re-Upload
 function handleEdit(sectionId) {
   handleUpload(sectionId);
 }
 
-// 🧩 Bind Buttons
+// 🧠 Setup on Load
 window.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll(".section").forEach((section) => {
     const id = section.id;
@@ -122,7 +121,7 @@ window.addEventListener("DOMContentLoaded", () => {
       btns[3].addEventListener("click", () => handleRename(id)); // Rename
     }
 
-    // Load from localStorage
+    // Load saved files from localStorage
     const saved = JSON.parse(localStorage.getItem(id) || "[]");
     saved.forEach((fileInfo) => {
       const wrapper = document.createElement("div");
