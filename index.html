@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="hi">
 <head>
@@ -24,7 +25,7 @@
     </nav>
   </div>
 
-  <!-- 📚 Sidebar Menu -->
+  <!-- 📚 Sidebar -->
   <div class="sidebar" id="sidebar">
     <ul>
       <li><a href="#search">🔍 खोजें</a></li>
@@ -49,53 +50,59 @@
     </ul>
   </div>
 
-  <!-- 🔄 All Sections with Buttons -->
-  <div class="main-content">
-    <!-- Template for all sections -->
-    <script>
-      const sections = [
-        { id: "search", icon: "fa-search", label: "खोजें" },
-        { id: "date", icon: "fa-calendar-day", label: "आज की तिथि" },
-        { id: "festivals", icon: "fa-star", label: "त्योहार" },
-        { id: "temples", icon: "fa-university", label: "मंदिर" },
-        { id: "aarti", icon: "fa-fire", label: "आरती" },
-        { id: "chalisa", icon: "fa-book", label: "चालीसा" },
-        { id: "bhajan", icon: "fa-music", label: "भजन" },
-        { id: "katha", icon: "fa-book-open", label: "कथा" },
-        { id: "webstory", icon: "fa-photo-video", label: "वेब स्टोरी" },
-        { id: "inspire", icon: "fa-comments", label: "प्रेरक कहानियाँ" },
-        { id: "mantra", icon: "fa-pray", label: "मंत्र" },
-        { id: "vrat", icon: "fa-sun", label: "व्रत एवं उपवास" },
-        { id: "sadhna", icon: "fa-spa", label: "साधना" },
-        { id: "yoga", icon: "fa-om", label: "योग एवं ध्यान" },
-        { id: "greetings", icon: "fa-envelope", label: "शुभकामना संदेश" },
-        { id: "shlok", icon: "fa-scroll", label: "श्लोक / दोहे" },
-        { id: "calendar", icon: "fa-calendar-alt", label: "कैलेंडर" },
-        { id: "gallery", icon: "fa-image", label: "फोटो गैलरी" },
-        { id: "blog", icon: "fa-blog", label: "ब्लॉग / लेख" },
-      ];
+  <!-- 📦 Main Content Sections -->
+  <div class="main-content"></div>
 
-      document.addEventListener("DOMContentLoaded", () => {
-        const main = document.querySelector(".main-content");
-        sections.forEach(section => {
-          const div = document.createElement("section");
-          div.className = "section";
-          div.id = section.id;
-          div.innerHTML = `
-            <div class="card">
-              <i class="fas ${section.icon}"></i> ${section.label}
-              <div class="btn-group">
-                <button>Upload</button>
-                <button>Edit</button>
-                <button>Remove</button>
-                <button>Rename</button>
-              </div>
-            </div>`;
-          main.appendChild(div);
-        });
+  <!-- 🧠 Section Generator -->
+  <script>
+    const sections = [
+      { id: "search", icon: "fa-search", label: "खोजें" },
+      { id: "date", icon: "fa-calendar-day", label: "आज की तिथि" },
+      { id: "festivals", icon: "fa-star", label: "त्योहार" },
+      { id: "temples", icon: "fa-university", label: "मंदिर" },
+      { id: "aarti", icon: "fa-fire", label: "आरती" },
+      { id: "chalisa", icon: "fa-book", label: "चालीसा" },
+      { id: "bhajan", icon: "fa-music", label: "भजन" },
+      { id: "katha", icon: "fa-book-open", label: "कथा" },
+      { id: "webstory", icon: "fa-photo-video", label: "वेब स्टोरी" },
+      { id: "inspire", icon: "fa-comments", label: "प्रेरक कहानियाँ" },
+      { id: "mantra", icon: "fa-pray", label: "मंत्र" },
+      { id: "vrat", icon: "fa-sun", label: "व्रत एवं उपवास" },
+      { id: "sadhna", icon: "fa-spa", label: "साधना" },
+      { id: "yoga", icon: "fa-om", label: "योग एवं ध्यान" },
+      { id: "greetings", icon: "fa-envelope", label: "शुभकामना संदेश" },
+      { id: "shlok", icon: "fa-scroll", label: "श्लोक / दोहे" },
+      { id: "calendar", icon: "fa-calendar-alt", label: "कैलेंडर" },
+      { id: "gallery", icon: "fa-image", label: "फोटो गैलरी" },
+      { id: "blog", icon: "fa-blog", label: "ब्लॉग / लेख" },
+    ];
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const main = document.querySelector(".main-content");
+
+      sections.forEach(section => {
+        const div = document.createElement("section");
+        div.className = "section";
+        div.id = section.id;
+
+        const showButtons = section.id !== "search";
+
+        div.innerHTML = `
+          <div class="card">
+            <i class="fas ${section.icon}"></i> ${section.label}
+            ${showButtons ? `
+            <div class="btn-group">
+              <button>Upload</button>
+              <button>Edit</button>
+              <button>Remove</button>
+              <button>Rename</button>
+            </div>
+            ` : ""}
+          </div>`;
+        main.appendChild(div);
       });
-    </script>
-  </div>
+    });
+  </script>
 
   <script src="script.js"></script>
 </body>
