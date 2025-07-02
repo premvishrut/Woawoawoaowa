@@ -4,128 +4,131 @@ document.getElementById("menu-toggle").addEventListener("click", () => {
   sidebar.style.display = sidebar.style.display === "block" ? "none" : "block";
 });
 
-// 📦 Preview Helper
-function getPreviewHTML(file, url, name) {
-  if (file.type.startsWith("image/")) {
-    return `<img src="${url}" style="max-width:100%; max-height:150px; border-radius:10px;" />`;
-  } else if (file.type.startsWith("audio/")) {
-    return `<audio controls src="${url}" style="width:100%"></audio>`;
-  } else if (file.type === "application/pdf") {
-    return `<a href="${url}" target="_blank" style="color:#fff; text-decoration:underline;">View PDF</a>`;
-  } else {
-    return `<p style='color:white;'>Uploaded: ${name}</p>`;
-  }
-}
-
-// ☁️ Upload to Cloudinary
-async function uploadToCloudinary(sectionId, file) {
+// 📤 Upload to Cloudinary (Permanent)
+function uploadToCloudinary(sectionId, file) {
   const formData = new FormData();
   formData.append("file", file);
-  formData.append("upload_preset", "bhajan_upload");
-  formData.append("folder", sectionId);
+  formData.append("upload_preset", "bhajan upload"); // Use your unsigned preset
+  formData.append("folder", sectionId); // Save under section name
 
-  const res = await fetch("https://api.cloudinary.com/v1_1/denn7emmr/upload", {
+  return fetch("https://api.cloudinary.com/v1_1/denn7emmr/upload", {
     method: "POST",
-    body: formData
-  });
-
-  if (!res.ok) {
-    alert("Upload failed!");
-    throw new Error("Upload failed");
-  }
-
-  const data = await res.json();
-  return {
-    url: data.secure_url,
-    type: file.type,
-    name: file.name
-  };
+    body: formData,
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.secure_url) {
+        return { url: data.secure_url, type: file.type, name: file.name };
+      } else {
+        throw new Error("Upload failed");
+      }
+    })
+    .catch((err) => {
+      alert("❌ Upload failed. Please check your internet or Cloudinary settings.");
+      console.error(err);
+    });
 }
 
-// 📂 Handle Upload
+// 📦 Get Preview
+function getPreview(fileInfo) {
+  if (fileInfo.type.startsWith("image/")) {
+    return `<img src="${fileInfo.url}" style="max-width:100%; max-height:150px; border-radius:10px;" />`;
+  } else if (fileInfo.type.startsWith("audio/")) {
+    return `<audio controls src="${fileInfo.url}" style="width:100%"></audio>`;
+  } else if (fileInfo.type === "application/pdf") {
+    return `<a href="${fileInfo.url}" target="_blank" style="color:#fff; text-decoration:underline;">View PDF</a>`;
+  } else {
+    return `<p style="color:white;">Uploaded: ${fileInfo.name}</p>`;
+  }
+}
+
+// 📂 Upload Handler
 function handleUpload(sectionId) {
+  if (sectionId === "search") return; // Skip "खोजें" section
+
   const input = document.createElement("input");
   input.type = "file";
   input.accept = "*/*";
 
   input.onchange = async () => {
     const file = input.files[0];
-    if (!file) return;
+    if (file) {
+      const uploading = document.createElement("p");
+      uploading.style.color = "white";
+      uploading.textContent = "Uploading...";
+      const section = document.getElementById(sectionId);
+      section.appendChild(uploading);
 
-    const section = document.getElementById(sectionId);
-    const loading = document.createElement("p");
-    loading.textContent = "Uploading...";
-    loading.style.color = "white";
-    section.appendChild(loading);
-
-    try {
       const uploaded = await uploadToCloudinary(sectionId, file);
-      loading.remove();
+      uploading.remove();
+
+      if (!uploaded) return;
 
       const wrapper = document.createElement("div");
       wrapper.className = "uploaded-files";
-      wrapper.innerHTML = getPreviewHTML(file, uploaded.url, uploaded.name);
+      wrapper.innerHTML = getPreview(uploaded);
       section.appendChild(wrapper);
 
-      const saved = JSON.parse(localStorage.getItem(sectionId) || "[]");
-      saved.push({ name: uploaded.name, type: uploaded.type, url: uploaded.url });
-      localStorage.setItem(sectionId, JSON.stringify(saved));
-    } catch (err) {
-      loading.remove();
+      const all = JSON.parse(localStorage.getItem(sectionId) || "[]");
+      all.push(uploaded);
+      localStorage.setItem(sectionId, JSON.stringify(all));
     }
   };
 
   input.click();
 }
 
-// 🗑️ Remove Last Upload
+// 🗑️ Remove Last
 function handleRemove(sectionId) {
   const section = document.getElementById(sectionId);
   const uploads = section.querySelectorAll(".uploaded-files");
   if (uploads.length > 0) {
     uploads[uploads.length - 1].remove();
-    const saved = JSON.parse(localStorage.getItem(sectionId) || "[]");
-    saved.pop();
-    localStorage.setItem(sectionId, JSON.stringify(saved));
+
+    let all = JSON.parse(localStorage.getItem(sectionId) || "[]");
+    all.pop();
+    localStorage.setItem(sectionId, JSON.stringify(all));
   }
 }
 
-// ✏️ Rename Last Upload
+// ✏️ Rename
 function handleRename(sectionId) {
   const section = document.getElementById(sectionId);
   const uploads = section.querySelectorAll(".uploaded-files");
   if (uploads.length > 0) {
     const last = uploads[uploads.length - 1];
-    const newName = prompt("नया नाम दर्ज करें:");
+    const newName = prompt("Enter new name (Hindi supported):");
     if (newName) {
       last.innerHTML = `<p style='color:white;'>Renamed to: ${newName}</p>`;
     }
   }
 }
 
-// ✏️ Edit = Re-upload
+// ♻️ Edit
 function handleEdit(sectionId) {
   handleUpload(sectionId);
 }
 
-// 🚀 Attach All Section Buttons
+// 🧩 Bind Buttons
 window.addEventListener("DOMContentLoaded", () => {
-  document.querySelectorAll(".section").forEach(section => {
+  document.querySelectorAll(".section").forEach((section) => {
     const id = section.id;
     const btns = section.querySelectorAll(".btn-group button");
 
-    btns[0].addEventListener("click", () => handleUpload(id));
-    btns[1].addEventListener("click", () => handleEdit(id));
-    btns[2].addEventListener("click", () => handleRemove(id));
-    btns[3].addEventListener("click", () => handleRename(id));
+    if (id !== "search") {
+      btns[0].addEventListener("click", () => handleUpload(id)); // Upload
+      btns[1].addEventListener("click", () => handleEdit(id));   // Edit
+      btns[2].addEventListener("click", () => handleRemove(id)); // Remove
+      btns[3].addEventListener("click", () => handleRename(id)); // Rename
+    }
 
-    // Restore from localStorage
+    // Load from localStorage
     const saved = JSON.parse(localStorage.getItem(id) || "[]");
-    saved.forEach(file => {
-      const wrap = document.createElement("div");
-      wrap.className = "uploaded-files";
-      wrap.innerHTML = getPreviewHTML({ type: file.type }, file.url, file.name);
-      section.appendChild(wrap);
+    saved.forEach((fileInfo) => {
+      const wrapper = document.createElement("div");
+      wrapper.className = "uploaded-files";
+      wrapper.innerHTML = getPreview(fileInfo);
+      section.appendChild(wrapper);
     });
   });
 });
